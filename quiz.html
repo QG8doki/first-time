@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Physics Concepts Quiz</title>
+
+<style>
+body {
+    font-family: Arial, sans-serif;
+    max-width: 900px;
+    margin: 40px auto;
+    padding: 20px;
+    background: #f5f5f5;
+}
+
+.container {
+    background: white;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 0 12px rgba(0,0,0,0.1);
+}
+
+h1 {
+    text-align: center;
+}
+
+.progress {
+    margin-bottom: 20px;
+    font-weight: bold;
+}
+
+.question {
+    font-size: 1.2em;
+    margin-bottom: 20px;
+}
+
+textarea {
+    width: 100%;
+    min-height: 120px;
+    padding: 10px;
+    font-size: 1em;
+    resize: vertical;
+}
+
+.buttons {
+    margin-top: 20px;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+button {
+    padding: 10px 18px;
+    font-size: 1em;
+    cursor: pointer;
+}
+
+.summary {
+    display: none;
+}
+
+.question-list {
+    margin-top: 20px;
+}
+
+.question-list button {
+    margin: 4px;
+}
+
+.answered {
+    background: #90ee90;
+}
+
+.skipped {
+    background: #ffd580;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+
+<h1>Physics Concepts Quiz</h1>
+
+<div id="quiz">
+
+<div class="progress" id="progress"></div>
+
+<div class="question" id="question"></div>
+
+<textarea id="answer" placeholder="Type your answer here..."></textarea>
+
+<div class="buttons">
+    <button onclick="previousQuestion()">Previous</button>
+    <button onclick="saveAndNext()">Save & Next</button>
+    <button onclick="skipQuestion()">Skip</button>
+    <button onclick="finishQuiz()">Finish</button>
+</div>
+
+</div>
+
+<div class="summary" id="summary">
+
+<h2>Quiz Summary</h2>
+
+<p>
+Answered:
+<span id="answeredCount"></span> /
+<span id="totalQuestions"></span>
+</p>
+
+<p>
+Skipped:
+<span id="skippedCount"></span>
+</p>
+
+<h3>Question Navigator</h3>
+
+<div class="question-list" id="navigator"></div>
+
+<button onclick="returnToQuiz()">Continue Quiz</button>
+
+</div>
+
+</div>
+
+<script>
+
+const questions = [
+"What does the c represent in E = mc²?",
+"According to Newton's First Law, what happens when net force is zero?",
+"What physical quantity is mass multiplied by velocity?",
+"What is the SI unit of force?",
+"What is the difference between speed and velocity?",
+"According to Newton's Third Law, what happens when a rocket pushes exhaust gases backward?",
+"What property determines resistance to changes in motion?",
+"What is the relationship between force, mass, and acceleration?",
+"Why do astronauts appear weightless while orbiting Earth?",
+"What quantity is conserved according to the Law of Conservation of Energy?",
+"What does temperature measure at the microscopic level?",
+"What tends to increase in an isolated system according to the Second Law of Thermodynamics?",
+"What is entropy often used to describe?",
+"What does the First Law of Thermodynamics state?",
+"Why can no heat engine be 100% efficient?",
+"What is the relationship between wavelength and frequency in a vacuum?",
+"What type of wave is light?",
+"What does voltage measure?",
+"What particle carries the electromagnetic force?",
+"What happens to photon energy as frequency increases?",
+"What is electromagnetic induction?",
+"What does Ohm's Law describe?",
+"What happens to time at very high speeds according to Special Relativity?",
+"What is the speed of light in a vacuum and why is it important?",
+"What is gravity according to General Relativity?",
+"Why does time pass more slowly near a massive object?",
+"What does the wave function represent?",
+"What is the Heisenberg Uncertainty Principle?",
+"What is a quantum superposition?",
+"What is wave-particle duality?",
+"What quantity is quantized in atoms?",
+"What happens when an electron absorbs a photon with the correct energy?",
+"What is quantum tunneling?",
+"What is the Pauli Exclusion Principle?",
+"What distinguishes bosons from fermions?",
+"What is quantum entanglement?",
+"What is the difference between scalar and vector quantities?",
+"What does the Principle of Least Action state?",
+"Why can't information travel faster than light?",
+"What is the difference between kinetic and potential energy?",
+"What is a frame of reference?",
+"What is conservation of momentum?",
+"Why do objects in free fall accelerate at the same rate?",
+"What is the difference between a conductor and an insulator?",
+"What is a field in physics?",
+"If velocity doubles, by what factor does kinetic energy change?",
+"Why does increasing gas temperature increase pressure in a sealed container?",
+"Why does observing a quantum system often affect the outcome?",
+"What is the significance of Planck's constant?",
+"Why don't atoms and galaxies expand with the expansion of space?"
+];
+
+let currentQuestion = 0;
+let answers = new Array(questions.length).fill("");
+let skipped = new Set();
+
+function loadQuestion() {
+    document.getElementById("question").innerText =
+        questions[currentQuestion];
+
+    document.getElementById("progress").innerText =
+        `Question ${currentQuestion + 1} of ${questions.length}`;
+
+    document.getElementById("answer").value =
+        answers[currentQuestion];
+}
+
+function saveCurrentAnswer() {
+    const answer = document.getElementById("answer").value.trim();
+
+    answers[currentQuestion] = answer;
+
+    if(answer !== "") {
+        skipped.delete(currentQuestion);
+    }
+}
+
+function saveAndNext() {
+    saveCurrentAnswer();
+
+    if(currentQuestion < questions.length - 1) {
+        currentQuestion++;
+        loadQuestion();
+    }
+}
+
+function skipQuestion() {
+    saveCurrentAnswer();
+
+    if(answers[currentQuestion] === "") {
+        skipped.add(currentQuestion);
+    }
+
+    if(currentQuestion < questions.length - 1) {
+        currentQuestion++;
+        loadQuestion();
+    }
+}
+
+function previousQuestion() {
+    saveCurrentAnswer();
+
+    if(currentQuestion > 0) {
+        currentQuestion--;
+        loadQuestion();
+    }
+}
+
+function finishQuiz() {
+
+    saveCurrentAnswer();
+
+    document.getElementById("quiz").style.display = "none";
+    document.getElementById("summary").style.display = "block";
+
+    const answeredCount =
+        answers.filter(a => a.trim() !== "").length;
+
+    document.getElementById("answeredCount").innerText =
+        answeredCount;
+
+    document.getElementById("totalQuestions").innerText =
+        questions.length;
+
+    document.getElementById("skippedCount").innerText =
+        questions.length - answeredCount;
+
+    const nav = document.getElementById("navigator");
+    nav.innerHTML = "";
+
+    questions.forEach((q, i) => {
+
+        const btn = document.createElement("button");
+
+        btn.textContent = i + 1;
+
+        if(answers[i].trim() !== "") {
+            btn.classList.add("answered");
+        } else {
+            btn.classList.add("skipped");
+        }
+
+        btn.onclick = () => {
+            currentQuestion = i;
+            returnToQuiz();
+        };
+
+        nav.appendChild(btn);
+    });
+}
+
+function returnToQuiz() {
+    document.getElementById("summary").style.display = "none";
+    document.getElementById("quiz").style.display = "block";
+    loadQuestion();
+}
+
+loadQuestion();
+
+</script>
+
+</body>
+</html>
